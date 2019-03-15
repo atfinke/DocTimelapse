@@ -81,26 +81,26 @@ def main():
             doc_num = int(input("Please enter the doc #: "))
             if doc_num >= len(items):
                 raise ValueError()
-        except ValueError:
+        except ValueError as error:
             print("Invalid doc #.")
             continue
         else:
             break
 
     file_id = items[doc_num]['id']
+    print(file_id)
 
     try:
         revisions = service.revisions().list(
-            fileId=file_id, fields="exportLinks").execute()
-        # print(revisions)
-        print()
-    except error:
+            fileId=file_id).execute()
+    except ValueError as error:
         print('An error occurred: %s' % error)
 
-    print(revisions)
+    print("got revisions")
     pdf_files = []
     revisions = revisions.get('revisions', [])
-    for revision in revisions:
+    for index, revision in enumerate(revisions):
+        print(str(index) + " / " + str(len(revisions)))
         revision_id = revision['id']
 
         revision_data = service.revisions().get(
@@ -113,6 +113,7 @@ def main():
         if link:
             pdf_files.append({'id': revision_id, 'link': link})
 
+    print("got links")
     dir = tempfile.gettempdir() + "/"
 
     last_file_size = 0
